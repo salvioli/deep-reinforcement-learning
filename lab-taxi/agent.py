@@ -10,22 +10,28 @@ class AlgorithmType(Enum):
 
 class Agent:
 
-    def __init__(self, nA=6, type=AlgorithmType.ExpectedSarsa):
+    def __init__(self,
+                 na=6,
+                 algorithm_type=AlgorithmType.ExpectedSarsa,
+                 alpha=0.6,
+                 gamma=1,
+    ):
         """ Initialize agent.
 
         Params
         ======
         - nA: number of actions available to the agent
         """
-        self.nA = nA
+        self.alpha = alpha
+        self.gamma = gamma
+        self.start_epsilon = epsilon
+
+        self.nA = na
         self.Q = defaultdict(lambda: np.zeros(self.nA))
-        self.start_epsilon = 0.8
         self.epsilon = self.start_epsilon
         self.epsilon_decay = lambda e: e*self.start_epsilon
-        self.alpha = 0.1
-        self.gamma = 0.8
         self.episode_counter = 0
-        self.algorithm_type = type
+        self.algorithm_type = algorithm_type
 
     def select_action(self, state):
         """ Given the state, select an action.
@@ -64,7 +70,6 @@ class Agent:
             self.Q[state][action] += self.alpha * (reward + self.gamma * np.sum(pi * self.Q[next_state]) - self.Q[state][action])
         else:
             raise ValueError("Algorithm type %s is not supported" % (self.algorithm_type))
-
 
         if done:
             self.episode_counter += 1
